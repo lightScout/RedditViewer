@@ -1,6 +1,6 @@
 package com.lightscout.redditviewer.model.data
 
-data class TechPostsData(
+data class RedditResponse(
     val `data`: Data,
     val kind: String
 )
