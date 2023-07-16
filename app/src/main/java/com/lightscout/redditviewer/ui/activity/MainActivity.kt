@@ -1,7 +1,6 @@
 package com.lightscout.redditviewer.ui.activity
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,9 +10,9 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.lightscout.redditviewer.ui.compose.PostsContainer
 import com.lightscout.redditviewer.ui.theme.RedditViewerTheme
 import com.lightscout.redditviewer.viewmodel.RedditViewModel
-import com.lightscout.redditviewer.viewmodel.ViewModelState
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -25,43 +24,16 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.state.observe(this) { state ->
-            when (state) {
-                is ViewModelState.Loading -> {
-                    Log.d("TAG_JJ", "loading ")
-
-                }
-                is ViewModelState.Success -> {
-                    Log.d("TAG_JJ", "Success ${state.data}")
-
-                }
-                else -> {}
-
-            }
-            setContent {
-                RedditViewerTheme {
-                    // A surface container using the 'background' color from the theme
-                    Surface(
-                        modifier = Modifier.fillMaxSize(),
-                        color = MaterialTheme.colors.background
-                    ) {
-                        Greeting("Android")
-                    }
+        setContent {
+            RedditViewerTheme {
+                // A surface container using the 'background' color from the theme
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colors.background
+                ) {
+                    PostsContainer(viewModel)
                 }
             }
-        }
-    }
-
-    @Composable
-    fun Greeting(name: String) {
-        Text(text = "Hello $name!")
-    }
-
-    @Preview(showBackground = true)
-    @Composable
-    fun DefaultPreview() {
-        RedditViewerTheme {
-            Greeting("Android")
         }
     }
 }

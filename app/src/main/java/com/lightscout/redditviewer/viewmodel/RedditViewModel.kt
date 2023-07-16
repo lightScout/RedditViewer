@@ -1,16 +1,17 @@
 package com.lightscout.redditviewer.viewmodel
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.lightscout.redditviewer.model.repository.RedditRepository
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class RedditViewModel @Inject constructor(private val redditRepository: RedditRepository) :
-    BaseViewModel<ViewModelState>(ViewModelState.Loading) {
+class RedditViewModel (private val redditRepository: RedditRepository, private val savedStateHandle: SavedStateHandle) :
+    BaseViewModel<ViewModelState>(ViewModelState.Loading, savedStateHandle) {
+    @Inject constructor(
+        redditRepository: RedditRepository
+    ) : this(redditRepository, SavedStateHandle())
     init {
-        setState {
-            ViewModelState.Loading
-        }
         viewModelScope.launch {
             redditRepository.getPosts().let { result ->
                 setState {

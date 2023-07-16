@@ -1,27 +1,19 @@
 package com.lightscout.redditviewer.viewmodel
 
 import androidx.annotation.MainThread
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.flow.StateFlow
 
-abstract class BaseViewModel<S : Any>(initialState: S): ViewModel() {
+abstract class BaseViewModel<S : Any>(initialState: ViewModelState, private val savedStateHandle: SavedStateHandle): ViewModel() {
 
-    private val _state: MutableLiveData<S> = MutableLiveData(initialState)
+    val state: StateFlow<ViewModelState> =
+        savedStateHandle.getStateFlow("state", initialState)
 
-    val state: LiveData<S> get() = _state
 
     @MainThread
-    protected fun setState(reducer: S.() -> S) {
-        val currentState = _state.value!!
-        val newState = currentState.reducer()
-        if (newState != currentState) {
-            _state.value = newState
-        }
+    protected fun setState(reducer: ViewModelState.() -> ViewModelState) {
+        savedStateHandle["state"] = reducer(state.value)
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        _state.value = null
-    }
 }
