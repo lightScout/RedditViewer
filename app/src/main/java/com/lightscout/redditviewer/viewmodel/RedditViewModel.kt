@@ -1,9 +1,8 @@
 package com.lightscout.redditviewer.viewmodel
 
+import androidx.lifecycle.viewModelScope
 import com.lightscout.redditviewer.model.repository.RedditRepository
-import com.lightscout.redditviewer.util.plusAssign
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class RedditViewModel @Inject constructor(private val redditRepository: RedditRepository) :
@@ -12,14 +11,22 @@ class RedditViewModel @Inject constructor(private val redditRepository: RedditRe
         setState {
             ViewModelState.Loading
         }
-        disposables += redditRepository.getPosts()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ posts ->
-                setState { ViewModelState.Success(posts) }
-            }, {
-//                state.postValue(ViewModelState.Error(it.message ?: "Unknown error"))
-            })
+        viewModelScope.launch {
+            redditRepository.getPosts().let { result ->
+                setState {
+                    when (result) {
+                        is RedditRepository.RepositoryResult.Success -> {
+                            ViewModelState.Success(result.posts)
+                        }
+                        is RedditRepository.RepositoryResult.Error -> {
+                            ViewModelState.Error(result.exception)
+                        }
+                    }
+                }
+            }
+
+        }
+
     }
 
 }

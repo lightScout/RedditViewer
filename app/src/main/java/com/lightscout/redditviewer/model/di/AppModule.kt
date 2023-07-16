@@ -1,6 +1,7 @@
 package com.lightscout.redditviewer.model.di
 
 import com.lightscout.redditviewer.model.repository.RedditRepository
+import com.lightscout.redditviewer.model.repository.RedditRepositoryImpl
 import com.lightscout.redditviewer.model.service.RedditService
 import com.lightscout.redditviewer.util.Constants.Companion.BASE_URL
 import com.lightscout.redditviewer.util.PostMapper
@@ -12,7 +13,6 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 
 @Module
@@ -30,7 +30,6 @@ class AppModule {
         return Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .client(client)
             .build()
             .create(RedditService::class.java)
@@ -41,7 +40,7 @@ class AppModule {
         redditService: RedditService,
         postMapper: PostMapper
     ): RedditRepository {
-        return RedditRepository(redditService, postMapper)
+        return RedditRepositoryImpl(redditService, postMapper)
     }
 
     @Provides

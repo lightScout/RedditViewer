@@ -4,10 +4,8 @@ import androidx.annotation.MainThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import io.reactivex.disposables.CompositeDisposable
 
 abstract class BaseViewModel<S : Any>(initialState: S): ViewModel() {
-    protected val disposables: CompositeDisposable = CompositeDisposable()
 
     private val _state: MutableLiveData<S> = MutableLiveData(initialState)
 
@@ -24,6 +22,6 @@ abstract class BaseViewModel<S : Any>(initialState: S): ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
-        disposables.dispose()
+        _state.value = null
     }
 }
