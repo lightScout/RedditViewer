@@ -11,7 +11,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
 import com.lightscout.redditviewer.model.data.Post
 import com.lightscout.redditviewer.viewmodel.RedditViewModel
 import com.lightscout.redditviewer.viewmodel.ViewModelState
@@ -40,7 +43,9 @@ fun PostsContainer(viewModel: RedditViewModel) {
         is ViewModelState.Success -> {
             LazyColumn(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(8.dp)
             ) {
                 items(items = (state as ViewModelState.Success).data) {
                     PostItem(post = it)
@@ -52,15 +57,29 @@ fun PostsContainer(viewModel: RedditViewModel) {
 
 }
 
+@Preview
 @Composable
-fun PostItem(post: Post) {
+fun PostItem(post: Post = Post("Title", "")) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier
+        modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
+            .padding(vertical = 4.dp)
     ) {
-//        PostImage(post = post)
+        PostImage(post = post)
         PostTitle(post = post)
+    }
+}
+
+@Preview
+@Composable
+fun PostList(post: List<Post> = listOf(Post("Title", ""), Post("Title", ""))) {
+    LazyColumn(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        items(items = post, itemContent = {
+            PostItem(post = it)
+        })
     }
 }
 
@@ -73,7 +92,12 @@ fun PostTitle(post: Post) {
     )
 }
 
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun PostImage(post: Post) {
-
+fun PostImage(post: Post = Post("Title", "")) {
+    GlideImage(
+        model = post.imageUrl,
+        contentDescription = "Post Image",
+        modifier = Modifier.size(100.dp)
+    )
 }

@@ -9,7 +9,7 @@ class PostMapper() {
         val post = ArrayList<Post>()
 
         for ((data, _) in redditResponse.data.children) {
-            post.add(Post(data.title))
+            post.add(Post(data.title, data.thumbnail))
         }
         return post
     }
