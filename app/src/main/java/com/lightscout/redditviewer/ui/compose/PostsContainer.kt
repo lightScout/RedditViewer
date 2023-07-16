@@ -1,11 +1,19 @@
 package com.lightscout.redditviewer.ui.compose
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -19,9 +27,12 @@ import com.lightscout.redditviewer.model.data.Post
 import com.lightscout.redditviewer.viewmodel.RedditViewModel
 import com.lightscout.redditviewer.viewmodel.ViewModelState
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PostsContainer(viewModel: RedditViewModel) {
     val state by viewModel.state.collectAsState()
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
+    val pullRefreshState = rememberPullRefreshState(isRefreshing, { viewModel.refresh() })
     when (state) {
         is ViewModelState.Loading -> {
             Column(
@@ -41,16 +52,33 @@ fun PostsContainer(viewModel: RedditViewModel) {
             )
         }
         is ViewModelState.Success -> {
-            LazyColumn(
+            AnimatedVisibility(visible = isRefreshing.not(), enter = fadeIn(), exit = fadeOut()) {
+                LazyColumn(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(8.dp)
+                        .pullRefresh(pullRefreshState)
+                ) {
+                    items(
+                        items = if (state is ViewModelState.Success) (state as ViewModelState.Success).data else listOf(),
+                        itemContent = {
+                            PostItem(post = it)
+                        })
+                }
+            }
+            Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(8.dp)
             ) {
-                items(items = (state as ViewModelState.Success).data) {
-                    PostItem(post = it)
-                }
+                PullRefreshIndicator(
+                    isRefreshing,
+                    pullRefreshState,
+
+                    )
             }
+
         }
     }
 
