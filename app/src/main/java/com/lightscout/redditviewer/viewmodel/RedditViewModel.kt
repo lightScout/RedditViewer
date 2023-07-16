@@ -6,7 +6,7 @@ import com.lightscout.redditviewer.model.repository.RedditRepository
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class RedditViewModel (private val redditRepository: RedditRepository, private val savedStateHandle: SavedStateHandle) :
+class RedditViewModel (private val redditRepository: RedditRepository, savedStateHandle: SavedStateHandle) :
     BaseViewModel<ViewModelState>(ViewModelState.Loading, savedStateHandle) {
     @Inject constructor(
         redditRepository: RedditRepository

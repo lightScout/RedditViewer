@@ -19,12 +19,16 @@ import com.lightscout.redditviewer.viewmodel.ViewModelState
 @Composable
 fun PostsContainer(viewModel: RedditViewModel) {
     val state by viewModel.state.collectAsState()
-//    AnimatedVisibility(visible = state is ViewModelState.Loading) {
-//        CircularProgressIndicator(modifier = Modifier.size(48.dp))
-//    }
     when (state) {
         is ViewModelState.Loading -> {
-            CircularProgressIndicator(modifier = Modifier.size(48.dp))
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+                CircularProgressIndicator(modifier = Modifier.size(48.dp))
+            }
         }
         is ViewModelState.Error -> {
             Text(
