@@ -1,4 +1,4 @@
-package com.lightscout.redditviewer
+package com.lightscout.redditviewer.ui.activity
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
