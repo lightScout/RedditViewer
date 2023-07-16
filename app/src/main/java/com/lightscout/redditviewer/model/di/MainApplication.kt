@@ -1,11 +1,9 @@
 package com.lightscout.redditviewer.model.di
 
 import android.app.Application
-import org.koin.dsl.module
+import dagger.hilt.android.HiltAndroidApp
 
+@HiltAndroidApp
 class MainApplication: Application() {
 
-    private val appModule = module {
-
-    }
 }
