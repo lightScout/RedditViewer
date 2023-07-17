@@ -1,14 +1,17 @@
 package com.lightscout.redditviewer.model.di
 
+import android.content.Context
 import com.lightscout.redditviewer.model.repository.RedditRepository
 import com.lightscout.redditviewer.model.repository.RedditRepositoryImpl
 import com.lightscout.redditviewer.model.service.RedditService
 import com.lightscout.redditviewer.util.Constants.Companion.BASE_URL
 import com.lightscout.redditviewer.util.PostMapper
+import com.lightscout.redditviewer.util.TinyDB
 import com.lightscout.redditviewer.viewmodel.RedditViewModel
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -49,8 +52,13 @@ class AppModule {
     }
 
     @Provides
-    fun provideViewModel(redditRepository: RedditRepository): RedditViewModel {
-        return RedditViewModel(redditRepository = redditRepository)
+    fun provideViewModel(redditRepository: RedditRepository, tinyDB: TinyDB): RedditViewModel {
+        return RedditViewModel(redditRepository = redditRepository, tinyDB = tinyDB)
+    }
+
+    @Provides
+    fun provideDB(@ApplicationContext appContext: Context) : TinyDB {
+        return TinyDB(appContext)
     }
 
 }

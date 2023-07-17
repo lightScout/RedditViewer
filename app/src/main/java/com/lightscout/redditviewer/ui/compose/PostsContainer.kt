@@ -44,6 +44,7 @@ fun PostsContainer(viewModel: RedditViewModel) {
                 CircularProgressIndicator(modifier = Modifier.size(48.dp))
             }
         }
+
         is ViewModelState.Error -> {
             Text(
                 text = (state as ViewModelState.Error).message,
@@ -51,6 +52,7 @@ fun PostsContainer(viewModel: RedditViewModel) {
                 color = MaterialTheme.colors.primary
             )
         }
+
         is ViewModelState.Success -> {
             AnimatedVisibility(visible = isRefreshing.not(), enter = fadeIn(), exit = fadeOut()) {
                 LazyColumn(
