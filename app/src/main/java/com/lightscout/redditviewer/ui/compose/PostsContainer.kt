@@ -121,7 +121,7 @@ fun PostListOfflineView(state: ViewModelState.Offline) {
             textAlign = TextAlign.Center,
             fontSize = MaterialTheme.typography.h6.fontSize,
             style = MaterialTheme.typography.body1,
-            color = MaterialTheme.colors.primaryVariant,
+            color = MaterialTheme.colors.onPrimary,
             modifier = Modifier
                 .fillMaxWidth()
                 .background(MaterialTheme.colors.primary)
