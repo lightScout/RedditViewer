@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.HorizontalAlignmentLine
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
@@ -187,18 +188,36 @@ fun PostList(post: List<Post>) {
 fun PostDetails(post: Post) {
     Column(
         horizontalAlignment = Alignment.Start,
-        verticalArrangement = Arrangement.spacedBy(4.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
         modifier = Modifier
             .fillMaxWidth()
             .padding(start = 32.dp)
     )
     {
-        Row() {
+        Row(horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically,) {
+            Text(
+                text = post.author, style = MaterialTheme.typography.subtitle1,
+                fontSize = MaterialTheme.typography.caption.fontSize,
+                color = MaterialTheme.colors.secondary
+            )
             Text(
                 text = post.timeStamp, style = MaterialTheme.typography.subtitle1,
                 fontSize = MaterialTheme.typography.caption.fontSize,
                 color = MaterialTheme.colors.secondary
             )
+            Card(
+                modifier = Modifier
+                    .clip(CircleShape),
+                backgroundColor = MaterialTheme.colors.onSecondary
+            ) {
+                Text(
+                    modifier = Modifier.padding(4.dp),
+                    text = post.flairText, style = MaterialTheme.typography.subtitle1,
+                    fontSize = MaterialTheme.typography.caption.fontSize,
+                    color = MaterialTheme.colors.primary
+                )
+            }
         }
 
         Text(
@@ -210,6 +229,7 @@ fun PostDetails(post: Post) {
     }
 
 }
+
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
