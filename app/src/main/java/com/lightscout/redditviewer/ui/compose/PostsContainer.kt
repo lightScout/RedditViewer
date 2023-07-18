@@ -1,6 +1,5 @@
 package com.lightscout.redditviewer.ui.compose
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -52,7 +51,7 @@ fun PostsContainer(viewModel: RedditViewModel) {
         }
 
         is ViewModelState.Error -> {
-            ErrorView()
+            ErrorView(state as ViewModelState.Error)
         }
 
         is ViewModelState.Success -> {
@@ -76,12 +75,24 @@ fun PostsContainer(viewModel: RedditViewModel) {
 }
 
 @Composable
-fun ErrorView() {
-    Text(
-        text = "Error",
-        style = MaterialTheme.typography.body1,
-        color = MaterialTheme.colors.primary
-    )
+fun ErrorView(error: ViewModelState.Error) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(2.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = error.message,
+            style = MaterialTheme.typography.body1,
+            color = MaterialTheme.colors.primary,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(2.dp)
+        )
+    }
+
 }
 
 
@@ -145,7 +156,11 @@ fun PostListOnlineView(
             item {
                 // Loading state at end of list
                 if (isLoading) {
-                    Box(Modifier.fillMaxWidth().height(60.dp), contentAlignment = Alignment.Center) {
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .height(60.dp), contentAlignment = Alignment.Center
+                    ) {
                         CircularProgressIndicator()
                     }
                 }
@@ -159,8 +174,9 @@ fun PostListOnlineView(
         listState.interactionSource.interactions.collectLatest {
             val visibleItemInfo = listState.layoutInfo.visibleItemsInfo
             if (visibleItemInfo.isNotEmpty() && visibleItemInfo.last().index >= state.data.size - 1) {
-                // end of the list reached, load more
-                viewModel.morePosts()
+                if(isLoading.not()) {
+                    viewModel.morePosts()
+                }
             }
         }
     }

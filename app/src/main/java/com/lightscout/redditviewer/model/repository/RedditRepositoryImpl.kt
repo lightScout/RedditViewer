@@ -14,7 +14,7 @@ class RedditRepositoryImpl @Inject constructor(
             val response  = redditService.getPosts(after)
             response.toResult(postMapper)
         }catch (e: Exception) {
-            RedditRepository.RepositoryResult.Error(e.message ?: "Unknown error")
+            RedditRepository.RepositoryResult.Error(e.localizedMessage ?: "Unknown error")
         }
     }
 }

@@ -26,6 +26,7 @@ class RedditViewModel(
 
     private val _isRefreshing = MutableStateFlow(false)
     private val _isLoading = MutableStateFlow(false)
+    private val recentPosts = ArrayList<Post>()
     private var after = ""
 
     val isRefreshing: StateFlow<Boolean>
@@ -42,6 +43,7 @@ class RedditViewModel(
                         is RedditRepository.RepositoryResult.Success -> {
                             after = result.after
                             tinyDb.putListObject("posts", ArrayList(result.posts))
+                            recentPosts.addAll(result.posts)
                             ViewModelState.Success(result.posts)
 
                         }
@@ -58,18 +60,19 @@ class RedditViewModel(
     }
 
     fun morePosts() {
+        if (_isLoading.value) return
         viewModelScope.launch {
             _isLoading.emit(true)
+            // Simulated network delay
             delay(3000)
-            redditRepository.getPosts().let { result ->
+            redditRepository.getPosts(after).let { result ->
                 setState {
                     when (result) {
                         is RedditRepository.RepositoryResult.Success -> {
                             after = result.after
                             val posts = ArrayList<Post>()
-                            posts.addAll(
-                                tinyDb.getListObject("posts", Post::class.java)
-                                    .mapNotNull { it as Post })
+                            posts.addAll(recentPosts)
+                            recentPosts.addAll(result.posts)
                             posts.addAll(result.posts)
                             tinyDb.putListObject("posts", ArrayList(result.posts))
                             viewModelScope.launch {
@@ -96,7 +99,6 @@ class RedditViewModel(
             }
         }
     }
-
     fun refresh() {
         viewModelScope.launch {
             _isRefreshing.emit(true)
@@ -107,6 +109,7 @@ class RedditViewModel(
                             viewModelScope.launch {
                                 _isRefreshing.emit(false)
                             }
+                            tinyDb.putListObject("posts", ArrayList(result.posts))
                             ViewModelState.Success(result.posts)
                         }
 
