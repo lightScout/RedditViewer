@@ -6,7 +6,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
@@ -24,7 +24,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.HorizontalAlignmentLine
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
@@ -121,11 +120,9 @@ fun PostListOnlineView(
                 .padding(2.dp)
                 .pullRefresh(pullRefreshState)
         ) {
-            items(
-                items = state.data,
-                itemContent = {
-                    PostItem(post = it)
-                })
+            itemsIndexed(state.data){index,item ->
+                    PostItem(post = item, index)
+                }
         }
 
     }
@@ -148,7 +145,7 @@ fun PullToRefreshIndicator(isRefreshing: Boolean, pullRefreshState: PullRefreshS
 }
 
 @Composable
-fun PostItem(post: Post) {
+fun PostItem(post: Post, index: Int){
     Card(
         modifier = Modifier
             .fillMaxSize()
@@ -165,7 +162,7 @@ fun PostItem(post: Post) {
                 .padding(16.dp)
         ) {
             PostImage(post = post)
-            PostDetails(post = post)
+            PostDetails(post = post, index)
         }
     }
 
@@ -178,22 +175,29 @@ fun PostList(post: List<Post>) {
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.fillMaxSize()
     ) {
-        items(items = post, itemContent = {
-            PostItem(post = it)
-        })
+        itemsIndexed(post){index,item ->
+            PostItem(post = item, index)
+        }
     }
 }
 
 @Composable
-fun PostDetails(post: Post) {
+fun PostDetails(post: Post, index: Int) {
     Column(
         horizontalAlignment = Alignment.Start,
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
         modifier = Modifier
             .fillMaxWidth()
             .padding(start = 32.dp)
     )
     {
+        Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
+            Text(
+                text = index.toString(), style = MaterialTheme.typography.subtitle1,
+                fontSize = MaterialTheme.typography.caption.fontSize,
+                color = MaterialTheme.colors.primary
+            )
+        }
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically,) {
             Text(
