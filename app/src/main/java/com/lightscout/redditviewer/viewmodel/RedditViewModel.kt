@@ -62,7 +62,7 @@ class RedditViewModel(
             _isOffline.emit(true)
             tinyDb.getListObject("posts", Post::class.java)?.let { posts ->
                 setState {
-                    ViewModelState.Success(posts.filterIsInstance<Post>())
+                    ViewModelState.Offline(posts.filterIsInstance<Post>())
                 }
             }
         }

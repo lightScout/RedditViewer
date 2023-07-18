@@ -1,9 +1,9 @@
 package com.lightscout.redditviewer.ui.compose
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -12,6 +12,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.PullRefreshState
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
@@ -19,6 +20,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
@@ -35,56 +37,120 @@ fun PostsContainer(viewModel: RedditViewModel) {
     val pullRefreshState = rememberPullRefreshState(isRefreshing, { viewModel.refresh() })
     when (state) {
         is ViewModelState.Loading -> {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                CircularProgressIndicator(modifier = Modifier.size(48.dp))
-            }
+            LoadingView()
         }
 
         is ViewModelState.Error -> {
-            Text(
-                text = (state as ViewModelState.Error).message,
-                style = MaterialTheme.typography.body1,
-                color = MaterialTheme.colors.primary
-            )
+            ErrorView()
         }
 
         is ViewModelState.Success -> {
-            AnimatedVisibility(visible = isRefreshing.not(), enter = fadeIn(), exit = fadeOut()) {
-                LazyColumn(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(8.dp)
-                        .pullRefresh(pullRefreshState)
-                ) {
-                    items(
-                        items = if (state is ViewModelState.Success) (state as ViewModelState.Success).data else listOf(),
-                        itemContent = {
-                            PostItem(post = it)
-                        })
-                }
-            }
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                PullRefreshIndicator(
-                    isRefreshing,
-                    pullRefreshState,
+            PostListOnlineView(isRefreshing, pullRefreshState, state as ViewModelState.Success)
 
-                    )
-            }
+        }
 
+        is ViewModelState.Offline -> {
+            PostListOfflineView(state as ViewModelState.Offline)
         }
     }
 
 
+}
+
+@Composable
+fun ErrorView() {
+    Text(
+        text = "Error",
+        style = MaterialTheme.typography.body1,
+        color = MaterialTheme.colors.primary
+    )
+}
+
+
+@Composable
+fun LoadingView() {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        CircularProgressIndicator(modifier = Modifier.size(48.dp))
+    }
+}
+
+@Composable
+fun PostListOfflineView(state: ViewModelState.Offline) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        Text(
+            text = "Offline",
+            textAlign = TextAlign.Center,
+            fontSize = MaterialTheme.typography.h6.fontSize,
+            style = MaterialTheme.typography.body1,
+            color = MaterialTheme.colors.primaryVariant,
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colors.primary)
+        )
+        LazyColumn(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp)
+        ) {
+            items(
+                items = state.data,
+                itemContent = {
+                    PostItem(post = it)
+                })
+        }
+    }
+
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun PostListOnlineView(
+    isRefreshing: Boolean,
+    pullRefreshState: PullRefreshState,
+    state: ViewModelState.Success
+) {
+    AnimatedVisibility(visible = isRefreshing.not(), enter = fadeIn(), exit = fadeOut()) {
+        LazyColumn(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp)
+                .pullRefresh(pullRefreshState)
+        ) {
+            items(
+                items = state.data,
+                itemContent = {
+                    PostItem(post = it)
+                })
+        }
+
+    }
+    PullToRefreshIndicator(isRefreshing = isRefreshing, pullRefreshState = pullRefreshState)
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun PullToRefreshIndicator(isRefreshing: Boolean, pullRefreshState: PullRefreshState) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        PullRefreshIndicator(
+            isRefreshing,
+            pullRefreshState,
+        )
+    }
 }
 
 @Preview

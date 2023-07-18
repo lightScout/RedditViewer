@@ -7,14 +7,14 @@ import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
 
 private val DarkColorPalette = darkColors(
-    primary = Purple200,
-    primaryVariant = Purple700,
+    primary = White,
+    primaryVariant = BlackVariant,
     secondary = Teal200
 )
 
 private val LightColorPalette = lightColors(
-    primary = Purple500,
-    primaryVariant = Purple700,
+    primary = Black,
+    primaryVariant = BlackVariant,
     secondary = Teal200
 
     /* Other default colors to override
@@ -32,7 +32,7 @@ fun RedditViewerTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Comp
     val colors = if (darkTheme) {
         DarkColorPalette
     } else {
-        LightColorPalette
+        DarkColorPalette
     }
 
     MaterialTheme(
