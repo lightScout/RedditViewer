@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.lightscout.redditviewer.model.data.Post
 import com.lightscout.redditviewer.model.repository.RedditRepository
 import com.lightscout.redditviewer.util.TinyDB
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@HiltViewModel
 class RedditViewModel(
     private val redditRepository: RedditRepository,
     private val tinyDb: TinyDB,

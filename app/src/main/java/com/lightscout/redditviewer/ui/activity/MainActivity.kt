@@ -10,6 +10,9 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavGraph
+import androidx.navigation.compose.rememberNavController
+import com.lightscout.redditviewer.navigation.NavHostGraph
 import com.lightscout.redditviewer.ui.compose.PostsContainer
 import com.lightscout.redditviewer.ui.theme.RedditViewerTheme
 import com.lightscout.redditviewer.util.Common
@@ -25,14 +28,11 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (Common().isNetworkAvailable(this).not())
-            viewModel.fromCache()
-        else
-            viewModel.getPosts()
 
         setContent {
+            val navController = rememberNavController()
             RedditViewerTheme {
-                PostsContainer(viewModel)
+                NavHostGraph(navController = navController)
             }
         }
     }

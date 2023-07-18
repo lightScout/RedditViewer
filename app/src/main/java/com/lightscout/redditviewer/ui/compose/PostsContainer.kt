@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -28,23 +29,40 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.lightscout.redditviewer.model.data.Post
+import com.lightscout.redditviewer.navigation.Screens
+import com.lightscout.redditviewer.util.Common
 import com.lightscout.redditviewer.viewmodel.RedditViewModel
 import com.lightscout.redditviewer.viewmodel.ViewModelState
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun PostsContainer(viewModel: RedditViewModel) {
+fun PostsContainer(navController: NavController) {
+    val viewModel = hiltViewModel<RedditViewModel>()
     val state by viewModel.state.collectAsState()
     val isRefreshing by viewModel.isRefreshing.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val pullRefreshState = rememberPullRefreshState(isRefreshing, { viewModel.refresh() })
     val listState = rememberLazyListState()
+    val isOnline = Common().isNetworkAvailable(LocalContext.current)
+
+    LaunchedEffect(viewModel) {
+        if (isOnline.not())
+            viewModel.fromCache()
+        else
+            viewModel.getPosts()
+    }
+
+
+
     when (state) {
         is ViewModelState.Loading -> {
             LoadingView()
@@ -61,13 +79,14 @@ fun PostsContainer(viewModel: RedditViewModel) {
                 pullRefreshState,
                 state as ViewModelState.Success,
                 listState,
-                viewModel
+                viewModel,
+                navController
             )
 
         }
 
         is ViewModelState.Offline -> {
-            PostListOfflineView(state as ViewModelState.Offline)
+            PostListOfflineView(state as ViewModelState.Offline, navController)
         }
     }
 
@@ -109,7 +128,7 @@ fun LoadingView() {
 }
 
 @Composable
-fun PostListOfflineView(state: ViewModelState.Offline) {
+fun PostListOfflineView(state: ViewModelState.Offline, navController: NavController) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -126,7 +145,7 @@ fun PostListOfflineView(state: ViewModelState.Offline) {
                 .fillMaxWidth()
                 .background(MaterialTheme.colors.primary)
         )
-        PostList(post = state.data)
+        PostList(post = state.data, navController)
     }
 
 }
@@ -139,7 +158,8 @@ fun PostListOnlineView(
     pullRefreshState: PullRefreshState,
     state: ViewModelState.Success,
     listState: LazyListState,
-    viewModel: RedditViewModel
+    viewModel: RedditViewModel,
+    navController: NavController
 ) {
     AnimatedVisibility(visible = isRefreshing.not(), enter = fadeIn(), exit = fadeOut()) {
         LazyColumn(
@@ -151,7 +171,7 @@ fun PostListOnlineView(
                 .pullRefresh(pullRefreshState)
         ) {
             itemsIndexed(state.data) { index, item ->
-                PostItem(post = item, index)
+                PostItem(post = item, index, navController)
             }
             item {
                 // Loading state at end of list
@@ -174,7 +194,7 @@ fun PostListOnlineView(
         listState.interactionSource.interactions.collectLatest {
             val visibleItemInfo = listState.layoutInfo.visibleItemsInfo
             if (visibleItemInfo.isNotEmpty() && visibleItemInfo.last().index >= state.data.size - 1) {
-                if(isLoading.not()) {
+                if (isLoading.not()) {
                     viewModel.morePosts()
                 }
             }
@@ -198,11 +218,12 @@ fun PullToRefreshIndicator(isRefreshing: Boolean, pullRefreshState: PullRefreshS
 }
 
 @Composable
-fun PostItem(post: Post, index: Int) {
+fun PostItem(post: Post, index: Int, navController: NavController) {
     Card(
         modifier = Modifier
             .fillMaxSize()
-            .padding(vertical = 2.dp),
+            .padding(vertical = 2.dp)
+            .clickable { navController.navigate(Screens.DetailScreen.route) },
         elevation = 8.dp,
         backgroundColor = MaterialTheme.colors.primaryVariant,
         shape = MaterialTheme.shapes.medium
@@ -222,14 +243,14 @@ fun PostItem(post: Post, index: Int) {
 }
 
 @Composable
-fun PostList(post: List<Post>) {
+fun PostList(post: List<Post>, navController: NavController) {
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.fillMaxSize()
     ) {
         itemsIndexed(post) { index, item ->
-            PostItem(post = item, index)
+            PostItem(post = item, index, navController)
         }
     }
 }
