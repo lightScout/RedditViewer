@@ -25,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
@@ -89,6 +88,7 @@ fun PostListOfflineView(state: ViewModelState.Offline) {
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
+            .padding(2.dp)
     ) {
         Text(
             text = "Offline",
@@ -100,18 +100,7 @@ fun PostListOfflineView(state: ViewModelState.Offline) {
                 .fillMaxWidth()
                 .background(MaterialTheme.colors.primary)
         )
-        LazyColumn(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(8.dp)
-        ) {
-            items(
-                items = state.data,
-                itemContent = {
-                    PostItem(post = it)
-                })
-        }
+        PostList(post = state.data)
     }
 
 }
@@ -128,7 +117,7 @@ fun PostListOnlineView(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(8.dp)
+                .padding(2.dp)
                 .pullRefresh(pullRefreshState)
         ) {
             items(
@@ -157,13 +146,14 @@ fun PullToRefreshIndicator(isRefreshing: Boolean, pullRefreshState: PullRefreshS
     }
 }
 
-@Preview
 @Composable
-fun PostItem(post: Post = Post("Title", "")) {
+fun PostItem(post: Post) {
     Card(
         modifier = Modifier
-            .fillMaxSize().padding(vertical= 8.dp),
+            .fillMaxSize()
+            .padding(vertical = 2.dp),
         elevation = 8.dp,
+        backgroundColor = MaterialTheme.colors.primaryVariant,
         shape = MaterialTheme.shapes.medium
     ) {
         Row(
@@ -174,15 +164,14 @@ fun PostItem(post: Post = Post("Title", "")) {
                 .padding(16.dp)
         ) {
             PostImage(post = post)
-            PostTitle(post = post)
+            PostDetails(post = post)
         }
     }
 
 }
 
-@Preview
 @Composable
-fun PostList(post: List<Post> = listOf(Post("Title", ""), Post("Title", ""))) {
+fun PostList(post: List<Post>) {
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -195,14 +184,23 @@ fun PostList(post: List<Post> = listOf(Post("Title", ""), Post("Title", ""))) {
 }
 
 @Composable
-fun PostTitle(post: Post) {
+fun PostDetails(post: Post) {
     Column(
         horizontalAlignment = Alignment.Start,
+        verticalArrangement = Arrangement.spacedBy(4.dp),
         modifier = Modifier
             .fillMaxWidth()
             .padding(start = 32.dp)
     )
     {
+        Row() {
+            Text(
+                text = post.timeStamp, style = MaterialTheme.typography.subtitle1,
+                fontSize = MaterialTheme.typography.caption.fontSize,
+                color = MaterialTheme.colors.secondary
+            )
+        }
+
         Text(
             text = post.title,
             style = MaterialTheme.typography.subtitle1,
@@ -215,7 +213,7 @@ fun PostTitle(post: Post) {
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun PostImage(post: Post = Post("Title", "")) {
+fun PostImage(post: Post) {
     GlideImage(
         model = post.imageUrl,
         contentScale = ContentScale.Crop,

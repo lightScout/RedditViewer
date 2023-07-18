@@ -32,4 +32,9 @@ class Common {
         }
         return false
     }
+
+    fun secondsToDays(seconds: Int): String {
+        val days = seconds / 86400
+        return "${days}d"
+    }
 }
