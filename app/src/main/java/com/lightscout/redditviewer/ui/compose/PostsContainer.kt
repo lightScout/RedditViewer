@@ -1,12 +1,15 @@
 package com.lightscout.redditviewer.ui.compose
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
@@ -19,6 +22,7 @@ import androidx.compose.material.pullrefresh.PullRefreshState
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -32,13 +36,16 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.lightscout.redditviewer.model.data.Post
 import com.lightscout.redditviewer.viewmodel.RedditViewModel
 import com.lightscout.redditviewer.viewmodel.ViewModelState
+import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PostsContainer(viewModel: RedditViewModel) {
     val state by viewModel.state.collectAsState()
     val isRefreshing by viewModel.isRefreshing.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
     val pullRefreshState = rememberPullRefreshState(isRefreshing, { viewModel.refresh() })
+    val listState = rememberLazyListState()
     when (state) {
         is ViewModelState.Loading -> {
             LoadingView()
@@ -49,7 +56,14 @@ fun PostsContainer(viewModel: RedditViewModel) {
         }
 
         is ViewModelState.Success -> {
-            PostListOnlineView(isRefreshing, pullRefreshState, state as ViewModelState.Success)
+            PostListOnlineView(
+                isRefreshing,
+                isLoading,
+                pullRefreshState,
+                state as ViewModelState.Success,
+                listState,
+                viewModel
+            )
 
         }
 
@@ -110,24 +124,46 @@ fun PostListOfflineView(state: ViewModelState.Offline) {
 @Composable
 fun PostListOnlineView(
     isRefreshing: Boolean,
+    isLoading: Boolean,
     pullRefreshState: PullRefreshState,
-    state: ViewModelState.Success
+    state: ViewModelState.Success,
+    listState: LazyListState,
+    viewModel: RedditViewModel
 ) {
     AnimatedVisibility(visible = isRefreshing.not(), enter = fadeIn(), exit = fadeOut()) {
         LazyColumn(
+            state = listState,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(2.dp)
                 .pullRefresh(pullRefreshState)
         ) {
-            itemsIndexed(state.data){index,item ->
-                    PostItem(post = item, index)
+            itemsIndexed(state.data) { index, item ->
+                PostItem(post = item, index)
+            }
+            item {
+                // Loading state at end of list
+                if (isLoading) {
+                    Box(Modifier.fillMaxWidth().height(60.dp), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
                 }
+            }
         }
 
     }
     PullToRefreshIndicator(isRefreshing = isRefreshing, pullRefreshState = pullRefreshState)
+
+    LaunchedEffect(listState) {
+        listState.interactionSource.interactions.collectLatest {
+            val visibleItemInfo = listState.layoutInfo.visibleItemsInfo
+            if (visibleItemInfo.isNotEmpty() && visibleItemInfo.last().index >= state.data.size - 1) {
+                // end of the list reached, load more
+                viewModel.morePosts()
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -146,7 +182,7 @@ fun PullToRefreshIndicator(isRefreshing: Boolean, pullRefreshState: PullRefreshS
 }
 
 @Composable
-fun PostItem(post: Post, index: Int){
+fun PostItem(post: Post, index: Int) {
     Card(
         modifier = Modifier
             .fillMaxSize()
@@ -176,7 +212,7 @@ fun PostList(post: List<Post>) {
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.fillMaxSize()
     ) {
-        itemsIndexed(post){index,item ->
+        itemsIndexed(post) { index, item ->
             PostItem(post = item, index)
         }
     }
@@ -192,8 +228,10 @@ fun PostDetails(post: Post, index: Int) {
             .padding(start = 16.dp)
     )
     {
-        Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,) {
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             Text(
                 text = post.author, style = MaterialTheme.typography.subtitle1,
                 fontSize = MaterialTheme.typography.caption.fontSize,

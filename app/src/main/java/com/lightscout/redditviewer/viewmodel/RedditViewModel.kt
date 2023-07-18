@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.lightscout.redditviewer.model.data.Post
 import com.lightscout.redditviewer.model.repository.RedditRepository
 import com.lightscout.redditviewer.util.TinyDB
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,13 +25,14 @@ class RedditViewModel(
     ) : this(redditRepository, tinyDB, SavedStateHandle())
 
     private val _isRefreshing = MutableStateFlow(false)
-    private val _isOffline = MutableStateFlow(false)
+    private val _isLoading = MutableStateFlow(false)
+    private var after = ""
 
     val isRefreshing: StateFlow<Boolean>
         get() = _isRefreshing.asStateFlow()
 
-    val isOfflineState: StateFlow<Boolean>
-        get() = _isOffline.asStateFlow()
+    val isLoading: StateFlow<Boolean>
+        get() = _isLoading.asStateFlow()
 
     fun getPosts() {
         viewModelScope.launch {
@@ -38,9 +40,7 @@ class RedditViewModel(
                 setState {
                     when (result) {
                         is RedditRepository.RepositoryResult.Success -> {
-                            viewModelScope.launch {
-                                _isOffline.emit(false)
-                            }
+                            after = result.after
                             tinyDb.putListObject("posts", ArrayList(result.posts))
                             ViewModelState.Success(result.posts)
 
@@ -57,9 +57,38 @@ class RedditViewModel(
 
     }
 
+    fun morePosts() {
+        viewModelScope.launch {
+            _isLoading.emit(true)
+            delay(3000)
+            redditRepository.getPosts().let { result ->
+                setState {
+                    when (result) {
+                        is RedditRepository.RepositoryResult.Success -> {
+                            after = result.after
+                            val posts = ArrayList<Post>()
+                            posts.addAll(
+                                tinyDb.getListObject("posts", Post::class.java)
+                                    .mapNotNull { it as Post })
+                            posts.addAll(result.posts)
+                            tinyDb.putListObject("posts", ArrayList(result.posts))
+                            viewModelScope.launch {
+                                _isLoading.emit(false)
+                            }
+                            ViewModelState.Success(posts)
+                        }
+
+                        is RedditRepository.RepositoryResult.Error -> {
+                            ViewModelState.Error(result.exception)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     fun fromCache() {
         viewModelScope.launch {
-            _isOffline.emit(true)
             tinyDb.getListObject("posts", Post::class.java)?.let { posts ->
                 setState {
                     ViewModelState.Offline(posts.filterIsInstance<Post>())
