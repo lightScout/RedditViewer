@@ -7,6 +7,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
@@ -20,6 +22,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -156,14 +160,24 @@ fun PullToRefreshIndicator(isRefreshing: Boolean, pullRefreshState: PullRefreshS
 @Preview
 @Composable
 fun PostItem(post: Post = Post("Title", "")) {
-    Column(
+    Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
+            .fillMaxSize().padding(vertical= 8.dp),
+        elevation = 8.dp,
+        shape = MaterialTheme.shapes.medium
     ) {
-        PostImage(post = post)
-        PostTitle(post = post)
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            PostImage(post = post)
+            PostTitle(post = post)
+        }
     }
+
 }
 
 @Preview
@@ -171,6 +185,7 @@ fun PostItem(post: Post = Post("Title", "")) {
 fun PostList(post: List<Post> = listOf(Post("Title", ""), Post("Title", ""))) {
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.fillMaxSize()
     ) {
         items(items = post, itemContent = {
@@ -181,11 +196,21 @@ fun PostList(post: List<Post> = listOf(Post("Title", ""), Post("Title", ""))) {
 
 @Composable
 fun PostTitle(post: Post) {
-    Text(
-        text = post.title,
-        style = MaterialTheme.typography.body1,
-        color = MaterialTheme.colors.primary
+    Column(
+        horizontalAlignment = Alignment.Start,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 32.dp)
     )
+    {
+        Text(
+            text = post.title,
+            style = MaterialTheme.typography.subtitle1,
+            fontSize = MaterialTheme.typography.subtitle2.fontSize,
+            color = MaterialTheme.colors.primary
+        )
+    }
+
 }
 
 @OptIn(ExperimentalGlideComposeApi::class)
@@ -193,7 +218,10 @@ fun PostTitle(post: Post) {
 fun PostImage(post: Post = Post("Title", "")) {
     GlideImage(
         model = post.imageUrl,
+        contentScale = ContentScale.Crop,
         contentDescription = "Post Image",
-        modifier = Modifier.size(100.dp)
+        modifier = Modifier
+            .size(70.dp)
+            .clip(CircleShape)
     )
 }
