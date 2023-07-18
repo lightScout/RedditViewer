@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
@@ -159,7 +160,7 @@ fun PostItem(post: Post, index: Int){
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(8.dp)
         ) {
             PostImage(post = post)
             PostDetails(post = post, index)
@@ -188,17 +189,10 @@ fun PostDetails(post: Post, index: Int) {
         verticalArrangement = Arrangement.spacedBy(4.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 32.dp)
+            .padding(start = 16.dp)
     )
     {
-        Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
-            Text(
-                text = index.toString(), style = MaterialTheme.typography.subtitle1,
-                fontSize = MaterialTheme.typography.caption.fontSize,
-                color = MaterialTheme.colors.primary
-            )
-        }
-        Row(horizontalArrangement = Arrangement.spacedBy(16.dp),
+        Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,) {
             Text(
                 text = post.author, style = MaterialTheme.typography.subtitle1,
@@ -222,6 +216,11 @@ fun PostDetails(post: Post, index: Int) {
                     color = MaterialTheme.colors.primary
                 )
             }
+            Text(
+                text = index.toString(), style = MaterialTheme.typography.subtitle1,
+                fontSize = MaterialTheme.typography.caption.fontSize,
+                color = MaterialTheme.colors.primary
+            )
         }
 
         Text(
@@ -243,7 +242,7 @@ fun PostImage(post: Post) {
         contentScale = ContentScale.Crop,
         contentDescription = "Post Image",
         modifier = Modifier
-            .size(70.dp)
-            .clip(CircleShape)
+            .size(80.dp)
+            .clip(RoundedCornerShape(20))
     )
 }
