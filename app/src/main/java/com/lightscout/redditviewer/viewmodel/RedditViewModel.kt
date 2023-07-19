@@ -92,6 +92,10 @@ class RedditViewModel(
         }
     }
 
+    fun getPost(postId : String): Post?{
+        return recentPosts.find { it.id == postId }
+    }
+
     fun fromCache() {
         viewModelScope.launch {
             tinyDb.getListObject("posts", Post::class.java)?.let { posts ->

@@ -37,4 +37,12 @@ class Common {
         val days = seconds / 86400
         return "${days}d"
     }
+
+    fun calculateTime(seconds: Int): String {
+        val days = seconds / 86400
+        val hours = seconds / 3600
+        val minutes = seconds / 60
+        return "${days}d ${hours}h ${minutes}m ${seconds}s"
+        }
+
 }

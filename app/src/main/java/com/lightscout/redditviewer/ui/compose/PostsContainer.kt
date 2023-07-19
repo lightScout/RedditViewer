@@ -1,6 +1,5 @@
 package com.lightscout.redditviewer.ui.compose
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -26,9 +25,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,7 +37,6 @@ import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.lightscout.redditviewer.model.data.Post
-import com.lightscout.redditviewer.navigation.Screens
 import com.lightscout.redditviewer.util.Common
 import com.lightscout.redditviewer.viewmodel.RedditViewModel
 import com.lightscout.redditviewer.viewmodel.ViewModelState
@@ -49,8 +44,7 @@ import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun PostsContainer(navController: NavController) {
-    val viewModel = hiltViewModel<RedditViewModel>()
+fun PostsContainer(navController: NavController, viewModel: RedditViewModel) {
     val state by viewModel.state.collectAsState()
     val isRefreshing by viewModel.isRefreshing.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -229,7 +223,9 @@ fun PostItem(post: Post, index: Int, navController: NavController) {
         modifier = Modifier
             .fillMaxSize()
             .padding(vertical = 2.dp)
-            .clickable { navController.navigate(Screens.DetailScreen.route) },
+            .clickable {
+                navController.navigate("detail/${post.id}")
+            },
         elevation = 8.dp,
         backgroundColor = MaterialTheme.colors.primaryVariant,
         shape = MaterialTheme.shapes.medium
