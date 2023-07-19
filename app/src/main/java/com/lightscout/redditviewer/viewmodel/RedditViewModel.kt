@@ -98,8 +98,13 @@ class RedditViewModel(
 
     fun fromCache() {
         viewModelScope.launch {
+            _isRefreshing.emit(true)
             tinyDb.getListObject("posts", Post::class.java)?.let { posts ->
                 setState {
+                    viewModelScope.launch {
+                        _isRefreshing.emit(false)
+                    }
+                    recentPosts.addAll(posts.filterIsInstance<Post>())
                     ViewModelState.Offline(posts.filterIsInstance<Post>())
                 }
             }

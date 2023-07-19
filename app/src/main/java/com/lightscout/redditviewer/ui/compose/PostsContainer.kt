@@ -30,9 +30,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
@@ -41,16 +41,24 @@ import com.lightscout.redditviewer.util.Common
 import com.lightscout.redditviewer.viewmodel.RedditViewModel
 import com.lightscout.redditviewer.viewmodel.ViewModelState
 import kotlinx.coroutines.flow.collectLatest
+import com.lightscout.redditviewer.R
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PostsContainer(navController: NavController, viewModel: RedditViewModel) {
+    val context = LocalContext.current
     val state by viewModel.state.collectAsState()
     val isRefreshing by viewModel.isRefreshing.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
-    val pullRefreshState = rememberPullRefreshState(isRefreshing, { viewModel.refresh() })
+    val pullRefreshState = rememberPullRefreshState(isRefreshing, {
+        if (Common().isNetworkAvailable(context))
+            viewModel.refresh()
+        else
+            viewModel.fromCache()
+
+    })
     val listState = rememberLazyListState()
-    val isOnline = Common().isNetworkAvailable(LocalContext.current)
+    val isOnline = Common().isNetworkAvailable(context)
 
 
     LaunchedEffect(viewModel) {
@@ -68,7 +76,7 @@ fun PostsContainer(navController: NavController, viewModel: RedditViewModel) {
         }
 
         is ViewModelState.Error -> {
-            ErrorView(state as ViewModelState.Error)
+            ErrorView(pullRefreshState, isRefreshing)
         }
 
         is ViewModelState.Success -> {
@@ -85,31 +93,47 @@ fun PostsContainer(navController: NavController, viewModel: RedditViewModel) {
         }
 
         is ViewModelState.Offline -> {
-            PostListOfflineView(state as ViewModelState.Offline, navController)
+            PostListOfflineView(
+                state as ViewModelState.Offline,
+                navController,
+                pullRefreshState,
+                isRefreshing
+            )
         }
     }
 
 
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ErrorView(error: ViewModelState.Error) {
-    Column(
+fun ErrorView(
+    pullRefreshState: PullRefreshState,
+    isRefreshing: Boolean
+) {
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(2.dp),
+            .padding(2.dp)
+            .pullRefresh(pullRefreshState),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(
-            text = error.message,
-            style = MaterialTheme.typography.body1,
-            color = MaterialTheme.colors.primary,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(2.dp)
-        )
+
+        item {
+            Text(
+                text = stringResource(id = R.string.network_error_message),
+                style = MaterialTheme.typography.caption,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colors.primary,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(2.dp)
+            )
+        }
+
     }
+    PullToRefreshIndicator(isRefreshing = isRefreshing, pullRefreshState = pullRefreshState)
 
 }
 
@@ -126,13 +150,20 @@ fun LoadingView() {
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun PostListOfflineView(state: ViewModelState.Offline, navController: NavController) {
+fun PostListOfflineView(
+    state: ViewModelState.Offline,
+    navController: NavController,
+    pullRefreshState: PullRefreshState,
+    isRefreshing: Boolean
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
             .padding(2.dp)
+            .pullRefresh(pullRefreshState)
     ) {
         Text(
             text = "Offline",
@@ -146,6 +177,7 @@ fun PostListOfflineView(state: ViewModelState.Offline, navController: NavControl
         )
         PostList(post = state.data, navController)
     }
+    PullToRefreshIndicator(isRefreshing = isRefreshing, pullRefreshState = pullRefreshState)
 
 }
 
