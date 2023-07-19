@@ -10,5 +10,8 @@ import retrofit2.http.Query
 
 interface RedditService {
     @GET(PATH)
-    suspend fun getPosts(@Query(AFTER) after : String? = null, @Query(LIMIT) limit : String = LIMIT_VALUE): RedditResponse
+    suspend fun getPosts(
+        @Query(AFTER) after: String? = null,
+        @Query(LIMIT) limit: String = LIMIT_VALUE
+    ): RedditResponse
 }

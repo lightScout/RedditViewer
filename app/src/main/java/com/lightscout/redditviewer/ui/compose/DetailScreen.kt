@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -59,15 +58,24 @@ fun DetailScreen(navController: NavController, postId: String, viewModel: Reddit
                 .padding(8.dp)
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                Image(painter = painterResource(id = R.drawable.baseline_thumb_up_24), contentDescription ="Up votes icon")
+                Image(
+                    painter = painterResource(id = R.drawable.baseline_thumb_up_24),
+                    contentDescription = "Up votes icon"
+                )
                 Text(text = post?.ups ?: "", color = MaterialTheme.colors.primary)
             }
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                Image(painter = painterResource(id = R.drawable.baseline_thumb_down_24), contentDescription ="Down votes icon")
+                Image(
+                    painter = painterResource(id = R.drawable.baseline_thumb_down_24),
+                    contentDescription = "Down votes icon"
+                )
                 Text(text = post?.downs ?: "", color = MaterialTheme.colors.primary)
             }
             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                Image(painter = painterResource(id = R.drawable.baseline_comment_24), contentDescription ="Comments icon")
+                Image(
+                    painter = painterResource(id = R.drawable.baseline_comment_24),
+                    contentDescription = "Comments icon"
+                )
                 Text(text = post?.numComments ?: "", color = MaterialTheme.colors.primary)
             }
         }

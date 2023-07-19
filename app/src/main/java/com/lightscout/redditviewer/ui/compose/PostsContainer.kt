@@ -36,20 +36,22 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.lightscout.redditviewer.R
 import com.lightscout.redditviewer.model.data.Post
 import com.lightscout.redditviewer.util.Common
 import com.lightscout.redditviewer.viewmodel.RedditViewModel
 import com.lightscout.redditviewer.viewmodel.ViewModelState
 import kotlinx.coroutines.flow.collectLatest
-import com.lightscout.redditviewer.R
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PostsContainer(navController: NavController, viewModel: RedditViewModel) {
+
     val context = LocalContext.current
     val state by viewModel.state.collectAsState()
     val isRefreshing by viewModel.isRefreshing.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+
     val pullRefreshState = rememberPullRefreshState(isRefreshing, {
         if (Common().isNetworkAvailable(context))
             viewModel.refresh()
@@ -166,7 +168,7 @@ fun PostListOfflineView(
             .pullRefresh(pullRefreshState)
     ) {
         Text(
-            text = "Offline",
+            text = stringResource(id = R.string.offline_message),
             textAlign = TextAlign.Center,
             fontSize = MaterialTheme.typography.h6.fontSize,
             style = MaterialTheme.typography.body1,
@@ -205,7 +207,6 @@ fun PostListOnlineView(
                 PostItem(post = item, index, navController)
             }
             item {
-                // Loading state at end of list
                 if (isLoading) {
                     Box(
                         Modifier

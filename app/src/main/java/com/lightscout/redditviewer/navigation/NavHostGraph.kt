@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.lightscout.redditviewer.ui.compose.DetailScreen
 import com.lightscout.redditviewer.ui.compose.PostsContainer
+import com.lightscout.redditviewer.util.Constants.Companion.POST_ID
 import com.lightscout.redditviewer.viewmodel.RedditViewModel
 
 @Composable
@@ -19,7 +20,11 @@ fun NavHostGraph(navController: NavHostController) {
         }
         composable(route = Screens.DetailScreen.route) {
 
-            DetailScreen(navController = navController, it.arguments?.getString("postId") ?: "", viewModel)
+            DetailScreen(
+                navController = navController,
+                it.arguments?.getString(POST_ID) ?: "",
+                viewModel
+            )
 
         }
     }

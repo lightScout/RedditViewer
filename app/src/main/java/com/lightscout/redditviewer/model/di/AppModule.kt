@@ -57,7 +57,7 @@ class AppModule {
     }
 
     @Provides
-    fun provideDB(@ApplicationContext appContext: Context) : TinyDB {
+    fun provideDB(@ApplicationContext appContext: Context): TinyDB {
         return TinyDB(appContext)
     }
 
