@@ -104,6 +104,8 @@ fun PostsContainer(navController: NavController, viewModel: RedditViewModel) {
         }
     }
 
+    PullToRefreshIndicator(isRefreshing = isRefreshing, pullRefreshState = pullRefreshState)
+
 
 }
 
@@ -135,7 +137,6 @@ fun ErrorView(
         }
 
     }
-    PullToRefreshIndicator(isRefreshing = isRefreshing, pullRefreshState = pullRefreshState)
 
 }
 
@@ -179,7 +180,6 @@ fun PostListOfflineView(
         )
         PostList(post = state.data, navController)
     }
-    PullToRefreshIndicator(isRefreshing = isRefreshing, pullRefreshState = pullRefreshState)
 
 }
 
@@ -220,7 +220,6 @@ fun PostListOnlineView(
         }
 
     }
-    PullToRefreshIndicator(isRefreshing = isRefreshing, pullRefreshState = pullRefreshState)
 
     LaunchedEffect(listState) {
         listState.interactionSource.interactions.collectLatest {

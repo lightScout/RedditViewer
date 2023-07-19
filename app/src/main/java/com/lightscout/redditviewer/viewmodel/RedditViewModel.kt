@@ -92,7 +92,7 @@ class RedditViewModel(
         }
     }
 
-    fun getPost(postId : String): Post?{
+    fun getPost(postId: String): Post? {
         return recentPosts.find { it.id == postId }
     }
 
@@ -110,6 +110,7 @@ class RedditViewModel(
             }
         }
     }
+
     fun refresh() {
         viewModelScope.launch {
             _isRefreshing.emit(true)
