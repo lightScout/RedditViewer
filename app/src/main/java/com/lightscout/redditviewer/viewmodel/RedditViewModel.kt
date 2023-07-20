@@ -6,6 +6,8 @@ import com.lightscout.redditviewer.model.data.Post
 import com.lightscout.redditviewer.model.repository.RedditRepository
 import com.lightscout.redditviewer.util.TinyDB
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,10 +16,11 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class RedditViewModel(
+class RedditViewModel   (
     private val redditRepository: RedditRepository,
     private val tinyDb: TinyDB,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.Main
 ) :
     BaseViewModel<ViewModelState>(ViewModelState.Loading, savedStateHandle) {
     @Inject
@@ -38,7 +41,7 @@ class RedditViewModel(
         get() = _isLoading.asStateFlow()
 
     fun getPosts() {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             redditRepository.getPosts().let { result ->
                 setState {
                     when (result) {
@@ -63,7 +66,7 @@ class RedditViewModel(
 
     fun morePosts() {
         if (_isLoading.value) return
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             _isLoading.emit(true)
             // Simulated network delay
             delay(3000)
@@ -77,7 +80,7 @@ class RedditViewModel(
                             recentPosts.addAll(result.posts)
                             posts.addAll(result.posts)
                             tinyDb.putListObject("posts", ArrayList(result.posts))
-                            viewModelScope.launch {
+                            viewModelScope.launch(dispatcher) {
                                 _isLoading.emit(false)
                             }
                             ViewModelState.Success(posts)
@@ -97,11 +100,11 @@ class RedditViewModel(
     }
 
     fun fromCache() {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             _isRefreshing.emit(true)
             tinyDb.getListObject("posts", Post::class.java)?.let { posts ->
                 setState {
-                    viewModelScope.launch {
+                    viewModelScope.launch(dispatcher) {
                         _isRefreshing.emit(false)
                     }
                     recentPosts.addAll(posts.filterIsInstance<Post>())
@@ -112,13 +115,13 @@ class RedditViewModel(
     }
 
     fun refresh() {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatcher) {
             _isRefreshing.emit(true)
             redditRepository.getPosts().let { result ->
                 setState {
                     when (result) {
                         is RedditRepository.RepositoryResult.Success -> {
-                            viewModelScope.launch {
+                            viewModelScope.launch(dispatcher) {
                                 _isRefreshing.emit(false)
                             }
                             tinyDb.putListObject("posts", ArrayList(result.posts))
@@ -126,7 +129,7 @@ class RedditViewModel(
                         }
 
                         is RedditRepository.RepositoryResult.Error -> {
-                            viewModelScope.launch {
+                            viewModelScope.launch(dispatcher) {
                                 _isRefreshing.emit(false)
                             }
                             ViewModelState.Error(result.exception)
