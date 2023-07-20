@@ -5,7 +5,7 @@ import com.lightscout.redditviewer.model.data.RedditResponse
 import com.lightscout.redditviewer.model.repository.RedditRepository
 import com.lightscout.redditviewer.model.repository.RedditRepositoryImpl
 import com.lightscout.redditviewer.model.service.RedditService
-import com.lightscout.redditviewer.util.PostMapper
+import com.lightscout.redditviewer.util.PostMapperImpl
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -20,15 +20,12 @@ class RedditRepositoryTest {
     @Mock
     private lateinit var redditService: RedditService
 
-    @Mock
-    private lateinit var postMapper: PostMapper
-
     private lateinit var repository: RedditRepository
 
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
-        repository = RedditRepositoryImpl(redditService, postMapper)
+        repository = RedditRepositoryImpl(redditService, PostMapperImpl())
     }
 
     @Test

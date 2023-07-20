@@ -6,6 +6,7 @@ import com.lightscout.redditviewer.model.repository.RedditRepositoryImpl
 import com.lightscout.redditviewer.model.service.RedditService
 import com.lightscout.redditviewer.util.Constants.Companion.BASE_URL
 import com.lightscout.redditviewer.util.PostMapper
+import com.lightscout.redditviewer.util.PostMapperImpl
 import com.lightscout.redditviewer.util.TinyDB
 import com.lightscout.redditviewer.viewmodel.RedditViewModel
 import dagger.Module
@@ -48,7 +49,7 @@ class AppModule {
 
     @Provides
     fun providePostMapper(): PostMapper {
-        return PostMapper()
+        return PostMapperImpl()
     }
 
     @Provides
