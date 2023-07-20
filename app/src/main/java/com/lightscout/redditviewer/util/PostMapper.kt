@@ -3,7 +3,7 @@ package com.lightscout.redditviewer.util
 import com.lightscout.redditviewer.model.data.Post
 import com.lightscout.redditviewer.model.data.RedditResponse
 
-class PostMapper {
+open class PostMapper {
 
     fun map(redditResponse: RedditResponse): List<Post> {
         val post = ArrayList<Post>()

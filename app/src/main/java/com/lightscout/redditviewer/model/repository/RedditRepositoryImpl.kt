@@ -19,6 +19,6 @@ class RedditRepositoryImpl @Inject constructor(
     }
 }
 
-private fun RedditResponse.toResult(postMapper: PostMapper): RedditRepository.RepositoryResult {
+fun RedditResponse.toResult(postMapper: PostMapper): RedditRepository.RepositoryResult {
     return RedditRepository.RepositoryResult.Success(postMapper.map(this), this.data.after)
 }
