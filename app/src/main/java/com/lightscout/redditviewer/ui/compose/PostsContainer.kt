@@ -78,7 +78,7 @@ fun PostsContainer(navController: NavController, viewModel: RedditViewModel) {
         }
 
         is ViewModelState.Error -> {
-            ErrorView(pullRefreshState, isRefreshing)
+            ErrorView(pullRefreshState)
         }
 
         is ViewModelState.Success -> {
@@ -99,7 +99,6 @@ fun PostsContainer(navController: NavController, viewModel: RedditViewModel) {
                 state as ViewModelState.Offline,
                 navController,
                 pullRefreshState,
-                isRefreshing
             )
         }
     }
@@ -113,7 +112,6 @@ fun PostsContainer(navController: NavController, viewModel: RedditViewModel) {
 @Composable
 fun ErrorView(
     pullRefreshState: PullRefreshState,
-    isRefreshing: Boolean
 ) {
     LazyColumn(
         modifier = Modifier
@@ -159,7 +157,6 @@ fun PostListOfflineView(
     state: ViewModelState.Offline,
     navController: NavController,
     pullRefreshState: PullRefreshState,
-    isRefreshing: Boolean
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,

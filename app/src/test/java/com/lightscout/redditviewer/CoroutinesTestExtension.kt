@@ -13,7 +13,7 @@ import org.junit.jupiter.api.extension.ParameterResolver
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CoroutinesTestExtension(
-    val dispatcher: TestCoroutineDispatcher = TestCoroutineDispatcher()
+    private val dispatcher: TestCoroutineDispatcher = TestCoroutineDispatcher()
 ) : BeforeTestExecutionCallback, AfterTestExecutionCallback, ParameterResolver {
 
     override fun beforeTestExecution(context: ExtensionContext?) {

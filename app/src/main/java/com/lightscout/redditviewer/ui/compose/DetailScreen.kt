@@ -15,13 +15,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.lightscout.redditviewer.R
 import com.lightscout.redditviewer.util.Common
 import com.lightscout.redditviewer.viewmodel.RedditViewModel
 
 @Composable
-fun DetailScreen(navController: NavController, postId: String, viewModel: RedditViewModel) {
+fun DetailScreen(postId: String, viewModel: RedditViewModel) {
     val post = viewModel.getPost(postId)
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,

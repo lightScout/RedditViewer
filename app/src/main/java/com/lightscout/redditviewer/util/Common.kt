@@ -5,6 +5,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 
+@Suppress("BooleanMethodIsAlwaysInverted")
 class Common {
     fun isNetworkAvailable(context: Context?): Boolean {
         if (context == null) return false

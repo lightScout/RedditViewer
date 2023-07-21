@@ -21,7 +21,6 @@ fun NavHostGraph(navController: NavHostController) {
         composable(route = Screens.DetailScreen.route) {
 
             DetailScreen(
-                navController = navController,
                 it.arguments?.getString(POST_ID) ?: "",
                 viewModel
             )
